@@ -296,7 +296,7 @@ class MovieDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            movie.runtimeFormatted,
+                            '${movie.runtime} minutes',
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 14,

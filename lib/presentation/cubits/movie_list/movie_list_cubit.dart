@@ -5,6 +5,7 @@ import 'movie_list_state.dart';
 
 class MovieListCubit extends Cubit<MovieListState> {
   final MovieRepository _repository;
+  final Map<int, int> _runtimeCache = {}; // Cache runtime by movie ID
 
   MovieListCubit({required MovieRepository repository})
     : _repository = repository,
@@ -16,6 +17,10 @@ class MovieListCubit extends Cubit<MovieListState> {
     emit(MovieListLoading());
 
     try {
+      // Load cached runtime data first
+      final cachedRuntimes = await _repository.getCachedRuntimes();
+      _runtimeCache.addAll(cachedRuntimes);
+
       // Load genres first
       final genres = await _repository.getGenres();
 
@@ -28,16 +33,28 @@ class MovieListCubit extends Cubit<MovieListState> {
           genres: genres,
           currentPage: 1,
           hasReachedMax: movies.length < 20,
+          runtimeCache: Map.from(_runtimeCache),
         ),
       );
+
+      // Load runtime for visible movies (first 10)
+      _loadRuntimeForMovies(movies.take(10).toList());
     } catch (e) {
       // Try to load cached data
       try {
         final cachedMovies = await _repository.getCachedMovies();
         final cachedGenres = await _repository.getGenres();
+        final cachedRuntimes = await _repository.getCachedRuntimes();
+        _runtimeCache.addAll(cachedRuntimes);
 
         if (cachedMovies.isNotEmpty) {
-          emit(MovieListOffline(movies: cachedMovies, genres: cachedGenres));
+          emit(
+            MovieListOffline(
+              movies: cachedMovies,
+              genres: cachedGenres,
+              runtimeCache: Map.from(_runtimeCache),
+            ),
+          );
         } else {
           emit(
             MovieListError(
@@ -75,16 +92,26 @@ class MovieListCubit extends Cubit<MovieListState> {
           currentPage: nextPage,
           hasReachedMax: newMovies.length < 20,
           isLoadingMore: false,
+          runtimeCache: Map.from(_runtimeCache),
         ),
       );
+
+      // Load runtime for new movies
+      _loadRuntimeForMovies(newMovies);
     } catch (e) {
       emit(currentState.copyWith(isLoadingMore: false));
-      // You might want to show a snackbar or toast here
     }
   }
 
   Future<void> refreshMovies() async {
     try {
+      // Clear runtime cache on refresh
+      _runtimeCache.clear();
+
+      // Load cached runtime data
+      final cachedRuntimes = await _repository.getCachedRuntimes();
+      _runtimeCache.addAll(cachedRuntimes);
+
       // Load genres
       final genres = await _repository.getGenres();
 
@@ -97,11 +124,60 @@ class MovieListCubit extends Cubit<MovieListState> {
           genres: genres,
           currentPage: 1,
           hasReachedMax: movies.length < 20,
+          runtimeCache: Map.from(_runtimeCache),
         ),
       );
+
+      // Load runtime for visible movies
+      _loadRuntimeForMovies(movies.take(10).toList());
     } catch (e) {
       // Keep current state and show error message
-      // You might want to show a snackbar or toast here
+    }
+  }
+
+  // Load runtime for visible movies
+  Future<void> loadRuntimeForVisibleMovies(List<int> visibleMovieIds) async {
+    final moviesToLoad = visibleMovieIds
+        .where((id) => !_runtimeCache.containsKey(id))
+        .toList();
+
+    if (moviesToLoad.isEmpty) return;
+
+    for (final movieId in moviesToLoad) {
+      _loadMovieRuntime(movieId);
+    }
+  }
+
+  Future<void> _loadRuntimeForMovies(List<Movie> movies) async {
+    for (final movie in movies) {
+      if (!_runtimeCache.containsKey(movie.id)) {
+        _loadMovieRuntime(movie.id);
+      }
+    }
+  }
+
+  Future<void> _loadMovieRuntime(int movieId) async {
+    try {
+      final runtime = await _repository.getMovieRuntime(movieId);
+      if (runtime != null) {
+        _runtimeCache[movieId] = runtime;
+
+        // Update state with new runtime
+        final currentState = state;
+        if (currentState is MovieListLoaded) {
+          emit(currentState.copyWith(runtimeCache: Map.from(_runtimeCache)));
+        } else if (currentState is MovieListOffline) {
+          emit(
+            MovieListOffline(
+              movies: currentState.movies,
+              genres: currentState.genres,
+              runtimeCache: Map.from(_runtimeCache),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Runtime loading failed, but don't affect main flow
     }
   }
 

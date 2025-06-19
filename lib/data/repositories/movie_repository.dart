@@ -12,7 +12,7 @@ class MovieRepository {
     required ApiService apiService,
     required DatabaseService databaseService,
   }) : _apiService = apiService,
-        _databaseService = databaseService;
+       _databaseService = databaseService;
 
   Future<List<Movie>> getMovies(int page, {bool forceRefresh = false}) async {
     try {
@@ -60,6 +60,35 @@ class MovieRepository {
       // If no cache, rethrow the error
       rethrow;
     }
+  }
+
+  // New method to get just runtime for a movie
+  Future<int?> getMovieRuntime(int movieId) async {
+    try {
+      // First try to get from cache
+      final cachedRuntime = await _databaseService.getCachedMovieRuntime(
+        movieId,
+      );
+      if (cachedRuntime != null) {
+        return cachedRuntime;
+      }
+
+      // If not cached, get from API
+      final movieDetail = await _apiService.getMovieDetail(movieId);
+
+      // Cache the runtime
+      await _databaseService.cacheMovieRuntime(movieId, movieDetail.runtime);
+
+      return movieDetail.runtime;
+    } catch (e) {
+      // Return null if failed to get runtime
+      return null;
+    }
+  }
+
+  // Get all cached runtime data
+  Future<Map<int, int>> getCachedRuntimes() async {
+    return await _databaseService.getAllCachedRuntimes();
   }
 
   Future<List<Genre>> getGenres() async {

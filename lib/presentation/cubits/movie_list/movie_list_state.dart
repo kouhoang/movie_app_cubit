@@ -19,6 +19,7 @@ class MovieListLoaded extends MovieListState {
   final int currentPage;
   final bool hasReachedMax;
   final bool isLoadingMore;
+  final Map<int, int> runtimeCache; // movieId -> runtime in minutes
 
   const MovieListLoaded({
     required this.movies,
@@ -26,6 +27,7 @@ class MovieListLoaded extends MovieListState {
     required this.currentPage,
     required this.hasReachedMax,
     this.isLoadingMore = false,
+    this.runtimeCache = const {},
   });
 
   MovieListLoaded copyWith({
@@ -34,6 +36,7 @@ class MovieListLoaded extends MovieListState {
     int? currentPage,
     bool? hasReachedMax,
     bool? isLoadingMore,
+    Map<int, int>? runtimeCache,
   }) {
     return MovieListLoaded(
       movies: movies ?? this.movies,
@@ -41,6 +44,7 @@ class MovieListLoaded extends MovieListState {
       currentPage: currentPage ?? this.currentPage,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      runtimeCache: runtimeCache ?? this.runtimeCache,
     );
   }
 
@@ -53,18 +57,34 @@ class MovieListLoaded extends MovieListState {
     return movieGenres.isNotEmpty ? movieGenres.first : 'Action';
   }
 
+  // Get runtime for a movie, return null if not loaded yet
+  int? getMovieRuntime(int movieId) {
+    return runtimeCache[movieId];
+  }
+
+  // Get formatted runtime string
+  String getFormattedRuntime(int movieId) {
+    final runtime = runtimeCache[movieId];
+    if (runtime == null || runtime <= 0) return '';
+    return '$runtime minutes';
+  }
+
   @override
-  List<Object?> get props => [movies, genres, currentPage, hasReachedMax, isLoadingMore];
+  List<Object?> get props => [
+    movies,
+    genres,
+    currentPage,
+    hasReachedMax,
+    isLoadingMore,
+    runtimeCache,
+  ];
 }
 
 class MovieListError extends MovieListState {
   final String message;
   final bool isOffline;
 
-  const MovieListError({
-    required this.message,
-    this.isOffline = false,
-  });
+  const MovieListError({required this.message, this.isOffline = false});
 
   @override
   List<Object?> get props => [message, isOffline];
@@ -73,10 +93,12 @@ class MovieListError extends MovieListState {
 class MovieListOffline extends MovieListState {
   final List<Movie> movies;
   final List<Genre> genres;
+  final Map<int, int> runtimeCache;
 
   const MovieListOffline({
     required this.movies,
     required this.genres,
+    this.runtimeCache = const {},
   });
 
   String getGenreNames(List<int> genreIds) {
@@ -88,6 +110,18 @@ class MovieListOffline extends MovieListState {
     return movieGenres.isNotEmpty ? movieGenres.first : 'Action';
   }
 
+  // Get runtime for a movie, return null if not loaded yet
+  int? getMovieRuntime(int movieId) {
+    return runtimeCache[movieId];
+  }
+
+  // Get formatted runtime string
+  String getFormattedRuntime(int movieId) {
+    final runtime = runtimeCache[movieId];
+    if (runtime == null || runtime <= 0) return '';
+    return '$runtime minutes';
+  }
+
   @override
-  List<Object?> get props => [movies, genres];
+  List<Object?> get props => [movies, genres, runtimeCache];
 }

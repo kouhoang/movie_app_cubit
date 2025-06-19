@@ -15,6 +15,7 @@ class MoviesScreen extends StatefulWidget {
 
 class _MoviesScreenState extends State<MoviesScreen> {
   final ScrollController _scrollController = ScrollController();
+  final Set<int> _visibleMovieIds = <int>{};
 
   @override
   void initState() {
@@ -42,6 +43,17 @@ class _MoviesScreenState extends State<MoviesScreen> {
     return currentScroll >= (maxScroll * 0.9);
   }
 
+  void _onMovieVisible(int movieId) {
+    if (!_visibleMovieIds.contains(movieId)) {
+      _visibleMovieIds.add(movieId);
+
+      // Load runtime for newly visible movies
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<MovieListCubit>().loadRuntimeForVisibleMovies([movieId]);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,11 +65,11 @@ class _MoviesScreenState extends State<MoviesScreen> {
           'Movies',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 34,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: false,
+        centerTitle: true,
       ),
       body: BlocBuilder<MovieListCubit, MovieListState>(
         builder: (context, state) {
@@ -83,7 +95,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                   const SizedBox(height: 8),
                   Text(
                     state.message,
-                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -114,6 +126,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                   child: _buildMoviesList(
                     state.movies,
                     state.getGenreNames,
+                    state.getFormattedRuntime,
                     false,
                   ),
                 ),
@@ -129,6 +142,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
               child: _buildMoviesList(
                 state.movies,
                 state.getGenreNames,
+                state.getFormattedRuntime,
                 state.isLoadingMore,
               ),
             );
@@ -143,6 +157,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
   Widget _buildMoviesList(
     List<Movie> movies,
     String Function(List<int>) getGenreNames,
+    String Function(int) getFormattedRuntime,
     bool isLoadingMore,
   ) {
     return ListView.builder(
@@ -160,7 +175,11 @@ class _MoviesScreenState extends State<MoviesScreen> {
         }
 
         final movie = movies[index];
-        return _buildMovieItem(movie, getGenreNames);
+
+        // Trigger runtime loading for visible items
+        _onMovieVisible(movie.id);
+
+        return _buildMovieItem(movie, getGenreNames, getFormattedRuntime);
       },
     );
   }
@@ -168,6 +187,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
   Widget _buildMovieItem(
     Movie movie,
     String Function(List<int>) getGenreNames,
+    String Function(int) getFormattedRuntime,
   ) {
     return GestureDetector(
       onTap: () {
@@ -197,7 +217,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                           color: const Color(0xFF2C2C2E),
                           child: const Icon(
                             Icons.movie,
-                            color: Colors.grey,
+                            color: Colors.white,
                             size: 32,
                           ),
                         ),
@@ -205,7 +225,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                           color: const Color(0xFF2C2C2E),
                           child: const Icon(
                             Icons.movie,
-                            color: Colors.grey,
+                            color: Colors.white,
                             size: 32,
                           ),
                         ),
@@ -214,7 +234,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                         color: const Color(0xFF2C2C2E),
                         child: const Icon(
                           Icons.movie,
-                          color: Colors.grey,
+                          color: Colors.white,
                           size: 32,
                         ),
                       ),
@@ -263,14 +283,14 @@ class _MoviesScreenState extends State<MoviesScreen> {
                     children: [
                       const Icon(
                         Icons.local_movies,
-                        color: Colors.grey,
+                        color: Colors.white,
                         size: 16,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         getGenreNames(movie.genreIds),
                         style: const TextStyle(
-                          color: Colors.grey,
+                          color: Colors.white,
                           fontSize: 15,
                         ),
                       ),
@@ -282,40 +302,53 @@ class _MoviesScreenState extends State<MoviesScreen> {
                     children: [
                       const Icon(
                         Icons.calendar_month,
-                        color: Colors.grey,
+                        color: Colors.white,
                         size: 16,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         movie.year,
                         style: const TextStyle(
-                          color: Colors.grey,
+                          color: Colors.white,
                           fontSize: 15,
                         ),
                       ),
                     ],
                   ),
                   // Runtime
-                  if (movie.runtime > 0) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time,
-                          color: Colors.grey,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${movie.runtime} minutes',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Builder(
+                        builder: (context) {
+                          final runtimeText = getFormattedRuntime(movie.id);
+                          if (runtimeText.isEmpty) {
+                            return const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            );
+                          }
+                          return Text(
+                            runtimeText,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
