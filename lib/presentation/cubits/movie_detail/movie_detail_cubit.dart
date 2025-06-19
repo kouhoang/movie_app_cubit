@@ -6,8 +6,8 @@ class MovieDetailCubit extends Cubit<MovieDetailState> {
   final MovieRepository _repository;
 
   MovieDetailCubit({required MovieRepository repository})
-      : _repository = repository,
-        super(MovieDetailInitial());
+    : _repository = repository,
+      super(MovieDetailInitial());
 
   Future<void> loadMovieDetail(int movieId) async {
     if (state is MovieDetailLoading) return;
@@ -18,12 +18,11 @@ class MovieDetailCubit extends Cubit<MovieDetailState> {
       final movieDetail = await _repository.getMovieDetail(movieId);
       emit(MovieDetailLoaded(movie: movieDetail));
     } catch (e) {
-      emit(MovieDetailError(message: 'Failed to load movie details: ${e.toString()}'));
+      emit(
+        MovieDetailError(
+          message: 'Failed to load movie details: ${e.toString()}',
+        ),
+      );
     }
-  }
-
-  @override
-  Future<void> close() {
-    return super.close();
   }
 }

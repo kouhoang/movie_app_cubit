@@ -51,9 +51,8 @@ class Movie extends Equatable {
     };
   }
 
-  String get fullPosterUrl => posterPath != null
-      ? 'https://image.tmdb.org/t/p/w500$posterPath'
-      : '';
+  String get fullPosterUrl =>
+      posterPath != null ? 'https://image.tmdb.org/t/p/w500$posterPath' : '';
 
   String get fullBackdropUrl => backdropPath != null
       ? 'https://image.tmdb.org/t/p/w780$backdropPath'
@@ -63,16 +62,26 @@ class Movie extends Equatable {
 
   String get formattedRating => voteAverage.toStringAsFixed(1);
 
-  String get runtimeFormatted {
+  //   String get runtimeInMinutes {
+  //   if (runtime <= 0) return '';
+  //   return '$runtime minutes';
+  // }
+
+  String get runtimeInMinutes {
     if (runtime <= 0) return '';
-    final hours = runtime ~/ 60;
-    final minutes = runtime % 60;
-    return hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
+    return '$runtime minutes';
   }
 
   @override
   List<Object?> get props => [
-    id, title, overview, posterPath, backdropPath,
-    releaseDate, voteAverage, genreIds, runtime
+    id,
+    title,
+    overview,
+    posterPath,
+    backdropPath,
+    releaseDate,
+    voteAverage,
+    genreIds,
+    runtime,
   ];
 }

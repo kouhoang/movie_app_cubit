@@ -7,9 +7,9 @@ import '../models/movie_response.dart';
 class ApiService {
   static const String _baseUrl = 'https://api.themoviedb.org/3';
 
-  // Replace with your actual API key and access token
-  static const String _apiKey = '0a92b29a7ad82c578fc6d806742432cd';
-  static const String _accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwYTkyYjI5YTdhZDgyYzU3OGZjNmQ4MDY3NDI0MzJjZCIsIm5iZiI6MTc0OTc4MTY5NC4zMDMsInN1YiI6IjY4NGI4Y2JlYjFkMzYyY2Y2OGIwZDc0MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.zjSi00_dIJPIvLAd0TQ8awbiFTf8FWi60oNoyla6O-g';
+  // static const String _apiKey = '0a92b29a7ad82c578fc6d806742432cd';
+  static const String _accessToken =
+      'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwYTkyYjI5YTdhZDgyYzU3OGZjNmQ4MDY3NDI0MzJjZCIsIm5iZiI6MTc0OTc4MTY5NC4zMDMsInN1YiI6IjY4NGI4Y2JlYjFkMzYyY2Y2OGIwZDc0MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.zjSi00_dIJPIvLAd0TQ8awbiFTf8FWi60oNoyla6O-g';
 
   final http.Client _client;
 
@@ -24,10 +24,7 @@ class ApiService {
     final url = '$_baseUrl/movie/popular?page=$page';
 
     try {
-      final response = await _client.get(
-        Uri.parse(url),
-        headers: _headers,
-      );
+      final response = await _client.get(Uri.parse(url), headers: _headers);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
@@ -44,10 +41,7 @@ class ApiService {
     final url = '$_baseUrl/movie/$movieId';
 
     try {
-      final response = await _client.get(
-        Uri.parse(url),
-        headers: _headers,
-      );
+      final response = await _client.get(Uri.parse(url), headers: _headers);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
@@ -64,10 +58,7 @@ class ApiService {
     final url = '$_baseUrl/genre/movie/list';
 
     try {
-      final response = await _client.get(
-        Uri.parse(url),
-        headers: _headers,
-      );
+      final response = await _client.get(Uri.parse(url), headers: _headers);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);

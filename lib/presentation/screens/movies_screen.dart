@@ -72,14 +72,12 @@ class _MoviesScreenState extends State<MoviesScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 64,
-                  ),
+                  const Icon(Icons.error_outline, color: Colors.red, size: 64),
                   const SizedBox(height: 16),
                   Text(
-                    state.isOffline ? 'No internet connection' : 'Something went wrong',
+                    state.isOffline
+                        ? 'No internet connection'
+                        : 'Something went wrong',
                     style: const TextStyle(color: Colors.white, fontSize: 18),
                   ),
                   const SizedBox(height: 8),
@@ -90,7 +88,8 @@ class _MoviesScreenState extends State<MoviesScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => context.read<MovieListCubit>().loadMovies(),
+                    onPressed: () =>
+                        context.read<MovieListCubit>().loadMovies(),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -112,7 +111,11 @@ class _MoviesScreenState extends State<MoviesScreen> {
                   ),
                 ),
                 Expanded(
-                  child: _buildMoviesList(state.movies, state.getGenreNames, false),
+                  child: _buildMoviesList(
+                    state.movies,
+                    state.getGenreNames,
+                    false,
+                  ),
                 ),
               ],
             );
@@ -138,10 +141,10 @@ class _MoviesScreenState extends State<MoviesScreen> {
   }
 
   Widget _buildMoviesList(
-      List<Movie> movies,
-      String Function(List<int>) getGenreNames,
-      bool isLoadingMore,
-      ) {
+    List<Movie> movies,
+    String Function(List<int>) getGenreNames,
+    bool isLoadingMore,
+  ) {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.all(16),
@@ -162,7 +165,10 @@ class _MoviesScreenState extends State<MoviesScreen> {
     );
   }
 
-  Widget _buildMovieItem(Movie movie, String Function(List<int>) getGenreNames) {
+  Widget _buildMovieItem(
+    Movie movie,
+    String Function(List<int>) getGenreNames,
+  ) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -185,33 +191,33 @@ class _MoviesScreenState extends State<MoviesScreen> {
                 height: 120,
                 child: movie.posterPath != null
                     ? CachedNetworkImage(
-                  imageUrl: movie.fullPosterUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: const Color(0xFF2C2C2E),
-                    child: const Icon(
-                      Icons.movie,
-                      color: Colors.grey,
-                      size: 32,
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: const Color(0xFF2C2C2E),
-                    child: const Icon(
-                      Icons.movie,
-                      color: Colors.grey,
-                      size: 32,
-                    ),
-                  ),
-                )
+                        imageUrl: movie.fullPosterUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: const Color(0xFF2C2C2E),
+                          child: const Icon(
+                            Icons.movie,
+                            color: Colors.grey,
+                            size: 32,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: const Color(0xFF2C2C2E),
+                          child: const Icon(
+                            Icons.movie,
+                            color: Colors.grey,
+                            size: 32,
+                          ),
+                        ),
+                      )
                     : Container(
-                  color: const Color(0xFF2C2C2E),
-                  child: const Icon(
-                    Icons.movie,
-                    color: Colors.grey,
-                    size: 32,
-                  ),
-                ),
+                        color: const Color(0xFF2C2C2E),
+                        child: const Icon(
+                          Icons.movie,
+                          color: Colors.grey,
+                          size: 32,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(width: 16),
@@ -228,7 +234,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
                     ),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
@@ -236,7 +242,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                   Row(
                     children: [
                       const Icon(
-                        Icons.star,
+                        Icons.star_border,
                         color: Colors.amber,
                         size: 16,
                       ),
@@ -289,9 +295,9 @@ class _MoviesScreenState extends State<MoviesScreen> {
                       ),
                     ],
                   ),
+                  // Runtime
                   if (movie.runtime > 0) ...[
                     const SizedBox(height: 4),
-                    // Runtime
                     Row(
                       children: [
                         const Icon(
@@ -301,7 +307,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          movie.runtimeFormatted,
+                          '${movie.runtime} minutes',
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 15,

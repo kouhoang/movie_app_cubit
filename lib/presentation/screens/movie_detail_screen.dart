@@ -7,14 +7,12 @@ import '../../data/models/movie_detail.dart';
 import '../../data/repositories/movie_repository.dart';
 import '../../data/services/api_service.dart';
 import '../../data/services/database_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MovieDetailScreen extends StatelessWidget {
   final int movieId;
 
-  const MovieDetailScreen({
-    super.key,
-    required this.movieId,
-  });
+  const MovieDetailScreen({super.key, required this.movieId});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +57,9 @@ class MovieDetailScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<MovieDetailCubit>().loadMovieDetail(movieId);
+                        context.read<MovieDetailCubit>().loadMovieDetail(
+                          movieId,
+                        );
                       },
                       child: const Text('Retry'),
                     ),
@@ -79,7 +79,11 @@ class MovieDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMovieDetail(BuildContext context, MovieDetail movie, bool isOffline) {
+  Widget _buildMovieDetail(
+    BuildContext context,
+    MovieDetail movie,
+    bool isOffline,
+  ) {
     return Scaffold(
       backgroundColor: const Color(0xFF1C1C1E),
       appBar: AppBar(
@@ -100,7 +104,7 @@ class MovieDetailScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.bookmark_border, color: Colors.white),
+            icon: const Icon(Icons.bookmark, color: Colors.white),
             onPressed: () {},
           ),
         ],
@@ -124,26 +128,31 @@ class MovieDetailScreen extends StatelessWidget {
               clipBehavior: Clip.none, // Allow overflow
               children: [
                 // Backdrop image
-                Container(
+                SizedBox(
                   height: 200,
                   width: double.infinity,
-                  child: movie.backdropPath != null
-                      ? CachedNetworkImage(
-                    imageUrl: movie.fullBackdropUrl,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: const Color(0xFF2C2C2E),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
                     ),
-                    errorWidget: (context, url, error) => Container(
-                      color: const Color(0xFF2C2C2E),
-                    ),
-                  )
-                      : Container(color: const Color(0xFF2C2C2E)),
+                    child: movie.backdropPath != null
+                        ? CachedNetworkImage(
+                            imageUrl: movie.fullBackdropUrl,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                Container(color: Color(0xFF2C2C2E)),
+                            errorWidget: (context, url, error) =>
+                                Container(color: Color(0xFF2C2C2E)),
+                          )
+                        : Container(color: Color(0xFF2C2C2E)),
+                  ),
                 ),
-                // Poster - positioned to overlap backdrop
+
+                // Poster
                 Positioned(
                   left: 16,
-                  top: 100, // Start near bottom of backdrop so half extends below
+                  top: 110,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: SizedBox(
@@ -151,42 +160,45 @@ class MovieDetailScreen extends StatelessWidget {
                       height: 165,
                       child: movie.posterPath != null
                           ? CachedNetworkImage(
-                        imageUrl: movie.fullPosterUrl,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: const Color(0xFF2C2C2E),
-                          child: const Icon(
-                            Icons.movie,
-                            color: Colors.grey,
-                            size: 48,
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          color: const Color(0xFF2C2C2E),
-                          child: const Icon(
-                            Icons.movie,
-                            color: Colors.grey,
-                            size: 48,
-                          ),
-                        ),
-                      )
+                              imageUrl: movie.fullPosterUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: const Color(0xFF2C2C2E),
+                                child: const Icon(
+                                  Icons.movie,
+                                  color: Colors.grey,
+                                  size: 48,
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                color: const Color(0xFF2C2C2E),
+                                child: const Icon(
+                                  Icons.movie,
+                                  color: Colors.grey,
+                                  size: 48,
+                                ),
+                              ),
+                            )
                           : Container(
-                        color: const Color(0xFF2C2C2E),
-                        child: const Icon(
-                          Icons.movie,
-                          color: Colors.grey,
-                          size: 48,
-                        ),
-                      ),
+                              color: const Color(0xFF2C2C2E),
+                              child: const Icon(
+                                Icons.movie,
+                                color: Colors.grey,
+                                size: 48,
+                              ),
+                            ),
                     ),
                   ),
                 ),
                 // Rating positioned at bottom right of backdrop
                 Positioned(
                   right: 16,
-                  bottom: 16, // Changed from top to bottom
+                  bottom: 16,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.7),
                       borderRadius: BorderRadius.circular(20),
@@ -195,7 +207,7 @@ class MovieDetailScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
-                          Icons.star,
+                          Icons.star_border,
                           color: Colors.amber,
                           size: 18,
                         ),
@@ -203,7 +215,7 @@ class MovieDetailScreen extends StatelessWidget {
                         Text(
                           movie.formattedRating,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: Colors.amber,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -214,59 +226,53 @@ class MovieDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
-            // Title positioned below background, aligned with bottom half of poster
+            // Title
             Padding(
-              padding: const EdgeInsets.fromLTRB(142, 16, 16, 0), // 16 + 110 + 16 = 142 for poster spacing
+              padding: const EdgeInsets.fromLTRB(142, 16, 16, 0),
               child: Text(
                 movie.title,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.w900,
                   letterSpacing: -0.5,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.left,
               ),
             ),
-            // Content area with proper spacing
-            const SizedBox(height: 40), // Reduced spacing to move metadata row up
-            // Content area - Metadata and Description
+
+            const SizedBox(height: 40),
+
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Movie metadata row with ICONS - CENTERED
+                  // Movie metadata row
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center, // Center the row
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Year with calendar icon
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2C2C2E),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.calendar_today,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.calendar_today,
+                            color: Colors.grey,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            movie.year,
+                            style: const TextStyle(
                               color: Colors.grey,
-                              size: 14,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              movie.year,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       const SizedBox(width: 12),
                       // Separator dot
@@ -321,7 +327,9 @@ class MovieDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            movie.genres.isNotEmpty ? movie.genres.first.name : 'Action',
+                            movie.genres.isNotEmpty
+                                ? movie.genres.first.name
+                                : 'Action',
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 14,
@@ -336,7 +344,7 @@ class MovieDetailScreen extends StatelessWidget {
                   // Description
                   Text(
                     movie.overview,
-                    style: const TextStyle(
+                    style: GoogleFonts.roboto(
                       color: Colors.white,
                       fontSize: 15,
                       height: 1.4,

@@ -1,15 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/repositories/movie_repository.dart';
 import '../../../data/models/movie.dart';
-import '../../../data/models/genre.dart';
 import 'movie_list_state.dart';
 
 class MovieListCubit extends Cubit<MovieListState> {
   final MovieRepository _repository;
 
   MovieListCubit({required MovieRepository repository})
-      : _repository = repository,
-        super(MovieListInitial());
+    : _repository = repository,
+      super(MovieListInitial());
 
   Future<void> loadMovies() async {
     if (state is MovieListLoading) return;
@@ -23,12 +22,14 @@ class MovieListCubit extends Cubit<MovieListState> {
       // Load first page of movies
       final movies = await _repository.getMovies(1);
 
-      emit(MovieListLoaded(
-        movies: movies,
-        genres: genres,
-        currentPage: 1,
-        hasReachedMax: movies.length < 20,
-      ));
+      emit(
+        MovieListLoaded(
+          movies: movies,
+          genres: genres,
+          currentPage: 1,
+          hasReachedMax: movies.length < 20,
+        ),
+      );
     } catch (e) {
       // Try to load cached data
       try {
@@ -36,20 +37,17 @@ class MovieListCubit extends Cubit<MovieListState> {
         final cachedGenres = await _repository.getGenres();
 
         if (cachedMovies.isNotEmpty) {
-          emit(MovieListOffline(
-            movies: cachedMovies,
-            genres: cachedGenres,
-          ));
+          emit(MovieListOffline(movies: cachedMovies, genres: cachedGenres));
         } else {
-          emit(MovieListError(
-            message: 'Failed to load movies: ${e.toString()}',
-            isOffline: true,
-          ));
+          emit(
+            MovieListError(
+              message: 'Failed to load movies: ${e.toString()}',
+              isOffline: true,
+            ),
+          );
         }
       } catch (cacheError) {
-        emit(MovieListError(
-          message: 'Failed to load movies: ${e.toString()}',
-        ));
+        emit(MovieListError(message: 'Failed to load movies: ${e.toString()}'));
       }
     }
   }
@@ -68,14 +66,17 @@ class MovieListCubit extends Cubit<MovieListState> {
       final nextPage = currentState.currentPage + 1;
       final newMovies = await _repository.getMovies(nextPage);
 
-      final allMovies = List<Movie>.from(currentState.movies)..addAll(newMovies);
+      final allMovies = List<Movie>.from(currentState.movies)
+        ..addAll(newMovies);
 
-      emit(currentState.copyWith(
-        movies: allMovies,
-        currentPage: nextPage,
-        hasReachedMax: newMovies.length < 20,
-        isLoadingMore: false,
-      ));
+      emit(
+        currentState.copyWith(
+          movies: allMovies,
+          currentPage: nextPage,
+          hasReachedMax: newMovies.length < 20,
+          isLoadingMore: false,
+        ),
+      );
     } catch (e) {
       emit(currentState.copyWith(isLoadingMore: false));
       // You might want to show a snackbar or toast here
@@ -90,12 +91,14 @@ class MovieListCubit extends Cubit<MovieListState> {
       // Load first page of movies
       final movies = await _repository.getMovies(1, forceRefresh: true);
 
-      emit(MovieListLoaded(
-        movies: movies,
-        genres: genres,
-        currentPage: 1,
-        hasReachedMax: movies.length < 20,
-      ));
+      emit(
+        MovieListLoaded(
+          movies: movies,
+          genres: genres,
+          currentPage: 1,
+          hasReachedMax: movies.length < 20,
+        ),
+      );
     } catch (e) {
       // Keep current state and show error message
       // You might want to show a snackbar or toast here
