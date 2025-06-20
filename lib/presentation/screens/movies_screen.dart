@@ -138,7 +138,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
             return RefreshIndicator(
               onRefresh: () => context.read<MovieListCubit>().refreshMovies(),
               color: Colors.blue,
-              backgroundColor: const Color(0xFF2C2C2E),
+              backgroundColor: const Color(0xFF1C1C1E),
               child: _buildMoviesList(
                 state.movies,
                 state.getGenreNames,
@@ -214,7 +214,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                         imageUrl: movie.fullPosterUrl,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
-                          color: const Color(0xFF2C2C2E),
+                          color: const Color(0xFF1C1C1E),
                           child: const Icon(
                             Icons.movie,
                             color: Colors.white,
@@ -222,7 +222,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                           ),
                         ),
                         errorWidget: (context, url, error) => Container(
-                          color: const Color(0xFF2C2C2E),
+                          color: const Color(0xFF1C1C1E),
                           child: const Icon(
                             Icons.movie,
                             color: Colors.white,
@@ -231,7 +231,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                         ),
                       )
                     : Container(
-                        color: const Color(0xFF2C2C2E),
+                        color: const Color(0xFF1C1C1E),
                         child: const Icon(
                           Icons.movie,
                           color: Colors.white,

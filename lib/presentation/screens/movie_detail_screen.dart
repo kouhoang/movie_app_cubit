@@ -24,7 +24,7 @@ class MovieDetailScreen extends StatelessWidget {
         ),
       )..loadMovieDetail(movieId),
       child: Scaffold(
-        backgroundColor: const Color(0xFF1C1C1E),
+        backgroundColor: const Color(0xFF2C2C2E),
         body: BlocBuilder<MovieDetailCubit, MovieDetailState>(
           builder: (context, state) {
             if (state is MovieDetailLoading) {
@@ -85,9 +85,9 @@ class MovieDetailScreen extends StatelessWidget {
     bool isOffline,
   ) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1E),
+      backgroundColor: const Color(0xFF2C2C2E),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1C1C1E),
+        backgroundColor: const Color(0xFF2C2C2E),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -125,7 +125,7 @@ class MovieDetailScreen extends StatelessWidget {
               ),
             // Backdrop with overlapping poster
             Stack(
-              clipBehavior: Clip.none, // Allow overflow
+              clipBehavior: Clip.none,
               children: [
                 // Backdrop image
                 SizedBox(
@@ -190,7 +190,7 @@ class MovieDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Rating positioned at bottom right of backdrop
+                // Rating
                 Positioned(
                   right: 16,
                   bottom: 16,
@@ -229,17 +229,20 @@ class MovieDetailScreen extends StatelessWidget {
             // Title
             Padding(
               padding: const EdgeInsets.fromLTRB(142, 16, 16, 0),
-              child: Text(
-                movie.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.5,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  movie.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.left,
               ),
             ),
 
