@@ -116,7 +116,7 @@ class MovieDetailScreen extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
-                color: Colors.orange.withOpacity(0.2),
+                color: Colors.orange.withValues(alpha: 0.2),
                 child: const Text(
                   'Viewing cached content (offline)',
                   textAlign: TextAlign.center,
@@ -200,7 +200,7 @@ class MovieDetailScreen extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
+                      color: Colors.black.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(

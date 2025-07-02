@@ -115,7 +115,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
-                  color: Colors.orange.withOpacity(0.2),
+                  color: Colors.orange.withValues(alpha: 0.2),
                   child: const Text(
                     'Showing cached movies (offline)',
                     textAlign: TextAlign.center,
